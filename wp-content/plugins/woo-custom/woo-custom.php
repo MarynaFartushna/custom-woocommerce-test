@@ -19,4 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'CW_PLUGIN_URL', __FILE__ );
 
-require_once plugin_dir_path( __FILE__ ) . '/admin/init.php';
+// Verify If WooCommerce Is Active
+if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+
+	require_once plugin_dir_path( __FILE__ ) . '/admin/init.php';
+
+	require_once plugin_dir_path( __FILE__ ) . '/admin/render_custom_fields.php';
+
+	require_once plugin_dir_path( __FILE__ ) . '/admin/edit_order.php';
+
+}
