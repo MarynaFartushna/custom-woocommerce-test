@@ -20,7 +20,6 @@ function custom_woo_process_order( $order_id ) {
 
 	//Hardcode now
 	$random_idis = [ 33, 34, 35, 36 ];
-
 	$removed_items = [];
 
 	// get order items = each product in the order
@@ -28,26 +27,27 @@ function custom_woo_process_order( $order_id ) {
 
 	foreach ( $items as $item ) {
 		$product = wc_get_product( $item['product_id'] );
-
 		if ( in_array( $product->get_id(), $random_idis ) ) {
-
-			$removed_items[] = $product->get_id();
-
+			$removed_items[] = $item;
 			$order->remove_item( $item->get_id() );
-
 		}
 	}
 
 	$order->calculate_totals();
-
 	$order->save();
 
 	//new order
 
 	$new_order = wc_create_order();
 
+	// New order items
 	foreach ( $removed_items as $removed_item ) {
-		$new_order->add_product( wc_get_product( $removed_item ), 1 );
+		$product = wc_get_product( $removed_item['product_id'] );
+		$new_item_id = $new_order->add_product( wc_get_product( $product->get_id() ), $removed_item['qty'] );
+		$new_item    = $new_order->get_item( $new_item_id, false );
+		$custom_propose = $removed_item->get_meta('Custom propose');
+		if( !empty($custom_propose) ) $new_item->update_meta_data( 'Custom propose', $custom_propose);
+		$new_item->save();
 	}
 
 	$shipping = new WC_Order_Item_Shipping();
